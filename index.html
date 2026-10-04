@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Dashboard de Clima</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <main class="container">
+
+        <h1>Dashboard de Clima</h1>
+
+        <p>Digite uma cidade para consultar o clima.</p>
+
+        <div class="search">
+            <input
+                type="text"
+                id="cidade"
+                placeholder="Digite uma cidade"
+            >
+
+            <button id="buscar">
+                Buscar
+            </button>
+        </div>
+
+        <div id="mensagem"></div>
+
+        <section id="resultado" class="resultado">
+
+            <h2 id="nomeCidade">--</h2>
+
+            <p id="temperatura">-- °C</p>
+
+            <p id="condicao">--</p>
+
+            <div class="detalhes">
+
+                <p>
+                    Umidade:
+                    <span id="umidade">--</span>%
+                </p>
+
+                <p>
+                    Vento:
+                    <span id="vento">--</span> km/h
+                </p>
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <script src="script.js"></script>
+
+</body>
+
+</html>
