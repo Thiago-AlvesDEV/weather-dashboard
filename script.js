@@ -1,17 +1,11 @@
 const campoCidade = document.getElementById("cidade");
-
 const botaoBuscar = document.getElementById("buscar");
-
 const mensagem = document.getElementById("mensagem");
 
 const nomeCidade = document.getElementById("nomeCidade");
-
 const temperatura = document.getElementById("temperatura");
-
 const condicao = document.getElementById("condicao");
-
 const umidade = document.getElementById("umidade");
-
 const vento = document.getElementById("vento");
 
 
@@ -29,50 +23,66 @@ async function buscarClima() {
 
     mensagem.textContent = "Buscando informações...";
 
+    try {
 
-    const urlGeocodificacao =
-        `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(cidade)}&count=1&language=pt&format=json`;
+        const urlGeocodificacao =
+            `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(cidade)}&count=1&language=pt&format=json`;
 
-    const respostaGeo = await fetch(urlGeocodificacao);
+        const respostaGeo = await fetch(urlGeocodificacao);
 
-    const dadosGeo = await respostaGeo.json();
+        if (!respostaGeo.ok) {
+            throw new Error("Erro ao consultar localização.");
+        }
+
+        const dadosGeo = await respostaGeo.json();
 
 
-    if (!dadosGeo.results || dadosGeo.results.length === 0) {
-        mensagem.textContent = "Cidade não encontrada.";
-        return;
+        if (!dadosGeo.results || dadosGeo.results.length === 0) {
+            mensagem.textContent = "Cidade não encontrada.";
+            return;
+        }
+
+
+        const local = dadosGeo.results[0];
+
+        const latitude = local.latitude;
+        const longitude = local.longitude;
+
+
+        const urlClima =
+            `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code&timezone=auto`;
+
+        const respostaClima = await fetch(urlClima);
+
+        if (!respostaClima.ok) {
+            throw new Error("Erro ao consultar clima.");
+        }
+
+        const dadosClima = await respostaClima.json();
+
+        const atual = dadosClima.current;
+
+
+        nomeCidade.textContent = `${local.name}, ${local.country}`;
+
+        temperatura.textContent = `${atual.temperature_2m} °C`;
+
+        umidade.textContent = `${atual.relative_humidity_2m}%`;
+
+        vento.textContent = `${atual.wind_speed_10m} km/h`;
+
+        condicao.textContent = interpretarClima(atual.weather_code);
+
+        mensagem.textContent = "";
+
+    } catch (erro) {
+
+        console.error("Erro ao buscar clima:", erro);
+
+        mensagem.textContent =
+            "Não foi possível obter os dados do clima. Tente novamente.";
+
     }
-
-
-    const local = dadosGeo.results[0];
-
-    const latitude = local.latitude;
-
-    const longitude = local.longitude;
-
-
-    const urlClima =
-        `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code&timezone=auto`;
-
-    const respostaClima = await fetch(urlClima);
-
-    const dadosClima = await respostaClima.json();
-
-
-    const atual = dadosClima.current;
-
-
-    nomeCidade.textContent = `${local.name}, ${local.country}`;
-
-    temperatura.textContent = `${atual.temperature_2m} °C`;
-
-    umidade.textContent = atual.relative_humidity_2m;
-
-    vento.textContent = atual.wind_speed_10m;
-
-    condicao.textContent = interpretarClima(atual.weather_code);
-
-    mensagem.textContent = "";
 }
 
 
@@ -107,6 +117,4 @@ function interpretarClima(codigo) {
     }
 
     return "Condição desconhecida";
-    
 }
-
